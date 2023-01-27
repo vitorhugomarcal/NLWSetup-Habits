@@ -1,4 +1,5 @@
 import './src/lib/dayjs'
+import OneSignal from 'react-native-onesignal';
 
 import { StatusBar } from 'react-native';
 import {
@@ -13,6 +14,9 @@ import { Loading } from './src/components/Loading';
 import { Routes } from './src/routes';
 import { AuthProvider } from './src/hooks/auth';
 
+const { APP_ID } = process.env
+
+OneSignal.setAppId(`${APP_ID}`);
 
 export default function App() {
   const [fontsLoaded] = useFonts({
