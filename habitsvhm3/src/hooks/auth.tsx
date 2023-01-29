@@ -8,8 +8,10 @@ import { api } from "../lib/axios";
 
 const { CLIENT_ID } = process.env
 
+console.log(CLIENT_ID)
+
 GoogleSignin.configure({
-  webClientId:CLIENT_ID
+  webClientId: CLIENT_ID
 });
 
 interface AuthProviderProps {

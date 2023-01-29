@@ -27,7 +27,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.habitsvhm3",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "process.env.GOOGLE_SERVICES_FILE"
     },
     "web": {
       "favicon": "./assets/favicon.png"

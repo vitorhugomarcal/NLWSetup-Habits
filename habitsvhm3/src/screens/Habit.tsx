@@ -27,7 +27,7 @@ interface DayInfoProps {
 }
 
 export function Habit() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [dayInfo, setDayInfo] = useState<DayInfoProps | null>(null);
   const [completedHabits, setCompletedHabits] = useState<string[]>([])
 
@@ -44,39 +44,47 @@ export function Habit() {
   const { userInfo } = useAuth()
   const userId = userInfo.id
 
-  async function fetchHabits() {
+  const fetchHabits = async () => {
+    setLoading(true);
     try {
-      setLoading(true)
-
-
-      const response = await api.get('/day', { params: { date, userId } });
-      setDayInfo(response.data);
-      setCompletedHabits(response.data.completedHabits ?? [])
+      const { data, status } = await api.get('/day', { params: { date, userId } });
+      if (status === 200) {
+        setCompletedHabits(data.completedHabits);
+        setDayInfo(data);
+      } else if (status === 401) {
+        Alert.alert('Erro', 'Sua sessão expirou, faça login novamente.')
+      }else {
+        Alert.alert('Erro', 'Não foi possível carregar as informações dos hábitos.')
+      }
     } catch (error) {
       console.log(error)
       Alert.alert('Ops', 'Não foi possível carregar as informações dos hábitos.')
-    } finally {
-      setLoading(false)
     }
+    setLoading(false);
   }
 
-  
-
-  async function handleToggleHabits(habitId: string) {
+  const handleToggleHabits = async (habitId: string) => {
+    setLoading(true);
     try {
-      
-      await api.patch(`/habits/${habitId}/${userId}/toggle`);
-
-      if (completedHabits?.includes(habitId)) {
-        setCompletedHabits(prevState => prevState.filter(habit => habit !== habitId));
-      } else {
-        setCompletedHabits(prevState => [...prevState, habitId]);
+      const { status } = await api.patch(`/habits/${habitId}/${userId}/toggle`);
+      if (status === 200) {
+        setCompletedHabits(prevState => 
+          prevState.includes(habitId) 
+          ? prevState.filter(habit => habit !== habitId) 
+          : [...prevState, habitId]
+        );
+      } else if (status === 401) {
+        Alert.alert('Erro', 'Sua sessão expirou, faça login novamente.')
+      }else {
+        Alert.alert('Erro', 'Não foi possível atualizar o status do hábito.')
       }
     } catch (error) {
       console.log(error)
       Alert.alert('Ops', 'Não foi possível atualizar o status do hábito.')
     }
+    setLoading(false);
   }
+
 
   useEffect(() => {
     fetchHabits()
