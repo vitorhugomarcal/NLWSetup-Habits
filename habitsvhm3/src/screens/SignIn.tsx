@@ -3,9 +3,37 @@ import colors from "tailwindcss/colors";
 import Logo2 from '../assets/logo.svg'
 import { FontAwesome } from '@expo/vector-icons'
 import { useAuth } from "../hooks/auth";
+import { Animated } from "../components/Animated";
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export function SignIn() {
   const { signInWithGoogle } = useAuth()
+
+  async function schedulePushNotification() {
+    const trigger = new Date()
+    trigger.setHours(20)
+    trigger.setMinutes(trigger.getMinutes() + 2)
+    trigger.setSeconds(0)
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: "Oii! 🫣",
+        body: 'Você já praticou seus hábitos hoje ???',
+      },
+      trigger,
+    });
+    console.log(`A próxima notificação foi agendada para: ${trigger}`);
+  }
+
+  setInterval(schedulePushNotification, 2 * 60 * 1000);
 
   async function handleSignInWithGoogle() {
     try {
@@ -17,6 +45,17 @@ export function SignIn() {
     }
   }
 
+  const handlePress = async () => {
+    try {
+      await Promise.all([
+        handleSignInWithGoogle(),
+        schedulePushNotification()
+      ])
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   return (
     <View className="flex-1 bg-background px-8 pt-16 justify-center items-center">
       <View className="mb-8">
@@ -25,7 +64,7 @@ export function SignIn() {
       <TouchableOpacity
         activeOpacity={0.7}
         className="flex-row h-14 px-4 border border-violet-500 rounded-lg items-center"
-        onPress={handleSignInWithGoogle}
+        onPress={handlePress}
       >
         <FontAwesome
           name="google"
@@ -36,6 +75,7 @@ export function SignIn() {
           Entrar com sua conta Google
         </Text>
       </TouchableOpacity>
+      <Animated />
     </View>
   )
 }

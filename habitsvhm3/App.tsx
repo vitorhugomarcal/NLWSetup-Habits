@@ -9,10 +9,9 @@ import {
   Inter_800ExtraBold
 } from '@expo-google-fonts/inter'
 
-import { Loading } from './src/components/Loading';
+import { LoadAnimation } from './src/components/LoadAnimation';
 import { Routes } from './src/routes';
 import { AuthProvider } from './src/hooks/auth';
-
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -24,7 +23,7 @@ export default function App() {
 
   if(!fontsLoaded){
     return (
-      <Loading />
+      <LoadAnimation />
     )
   }
 

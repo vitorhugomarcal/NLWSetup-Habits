@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Text, View, ScrollView, Alert } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
@@ -9,7 +9,8 @@ import { Header } from '../components/Header';
 import { Loading } from '../components/Loading';
 import { HabitDay, DAY_SIZE } from '../components/HabitDay';
 import dayjs from 'dayjs';
-import { useAuth } from '../hooks/auth';
+import { useAuth } from '../hooks/auth'
+import * as Notifications from 'expo-notifications';
 
 const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const datesFromYearStart = generateDatesFromYearBeginning();
@@ -31,12 +32,19 @@ export function Home() {
 
   const { userInfo } = useAuth()
 
+  async function getSchedule() {
+    const schedules = await Notifications.getAllScheduledNotificationsAsync()
+    console.log(schedules)
+  }
+
+  getSchedule()
+
   async function fetchData() {
     try {
       setLoading(true)
       const userId = userInfo.id
-      const response = await api.get('/summary', { params: { userId }});
-      setSummary(response.data)
+      const { data } = await api.get('/summary', { params: { userId }});
+      setSummary(data)
     } catch (error) {
       Alert.alert('Ops', 'Não foi possível carregar o sumário de hábitos.')
       console.log(error)

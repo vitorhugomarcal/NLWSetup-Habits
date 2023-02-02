@@ -10,7 +10,7 @@ import { generateProgressPercentage } from "../utils/generate-progress-percentag
 import { BackButton } from "../components/BackButton";
 import { ProgressBar } from "../components/ProgressBar";
 import { Checkbox } from "../components/Checkbox";
-import { Loading } from "../components/Loading";
+import { LoadAnimation } from "../components/LoadAnimation";
 import { HabitsEmpty } from "../components/HabitsEmpty";
 import { useAuth } from "../hooks/auth";
 
@@ -64,7 +64,7 @@ export function Habit() {
   }
 
   const handleToggleHabits = async (habitId: string) => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const { status } = await api.patch(`/habits/${habitId}/${userId}/toggle`);
       if (status === 200) {
@@ -82,7 +82,7 @@ export function Habit() {
       console.log(error)
       Alert.alert('Ops', 'Não foi possível atualizar o status do hábito.')
     }
-    setLoading(false);
+    // setLoading(false);
   }
 
 
@@ -92,7 +92,7 @@ export function Habit() {
 
   if (loading) {
     return (
-      <Loading />
+      <LoadAnimation />
     )
   }
 

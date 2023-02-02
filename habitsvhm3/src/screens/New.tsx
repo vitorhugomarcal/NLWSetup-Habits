@@ -18,11 +18,11 @@ export function New() {
   const [ isLoading, setIsLoading ] = useState(false)
 
   function handleToggleWeekDay(weekDayIndex: number){
-    if(weekDays.includes(weekDayIndex)){
-      setWeekDays(prevState => prevState.filter(weekDay => weekDay !== weekDayIndex))
-    } else {
-      setWeekDays(prevState => [...prevState, weekDayIndex])
-    }
+    setWeekDays(prevState => 
+        prevState.includes(weekDayIndex) 
+        ? prevState.filter(weekDay => weekDay !== weekDayIndex)
+        : [...prevState, weekDayIndex]
+    );
   }
   
   const { userInfo } = useAuth()
@@ -30,15 +30,12 @@ export function New() {
   async function handleCreateNewHabit() {
     setIsLoading(true)
     try {
-      if(!title.trim() || weekDays.length === 0){
+      if(!title.trim() || !weekDays.length){
         return Alert.alert('Novo hábito.', 'Informe o nome do hábito e escolha a recorrência.')
       }
-      const userId = userInfo.id
-      await api.post('/habits', { userId, title, weekDays })
-
+      await api.post('/habits', { userId: userInfo.id, title, weekDays })
       setTitle('')
       setWeekDays([])
-
       Alert.alert('Novo hábito.', 'Cadastro realizado com sucesso!')
     } catch (error) {
       console.log(error)
