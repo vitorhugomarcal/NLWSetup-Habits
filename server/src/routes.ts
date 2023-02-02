@@ -1,11 +1,10 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs"
 import { FastifyInstance } from "fastify"
 import { prisma } from "./lib/prisma"
-import { z } from 'zod'
+import { z } from "zod"
 
-export async function appRoutes(app: FastifyInstance){
-
-  app.post('/user', async(req) => {
+export async function appRoutes(app: FastifyInstance) {
+  app.post('/user', async(req, res) => {
     const createUser = z.object({
       id: z.string(),
       name: z.string(),
@@ -15,27 +14,17 @@ export async function appRoutes(app: FastifyInstance){
 
     const { name, email, photo, id } = createUser.parse(req.body)
 
-    const userExists = await prisma.user.findFirst({
-      where: {
-        id,
-      }
-    })
+    const userExists = await prisma.user.findFirst({ where: { id } });
 
     if (!userExists) {
-      await prisma.user.create({
-        data: {
-          id,
-          name,
-          email,
-          photo,
-        }
-      })
-      } else {
-        return
+      await prisma.user.create({ data: { id, name, email, photo } });
+      res.status(201).send({ message: 'User created successfully' });
+    } else {
+      res.status(409).send({ message: 'User already exists' });
     }
-  })
+  });
 
-  app.post('/habits', async(req) => {
+  app.post('/habits', async (request) => {
     const createHabitBody = z.object({
       title: z.string(),
       weekDays: z.array(
@@ -44,25 +33,22 @@ export async function appRoutes(app: FastifyInstance){
       userId: z.string(),
     })
 
-    const { title, weekDays, userId } = createHabitBody.parse(req.body)
+    const { title, weekDays, userId } = createHabitBody.parse(request.body)
 
     const today = dayjs().startOf('day').toDate()
-
-    const addToday = dayjs(today).hour(3).toDate()
-    // console.log(addToday)
 
     await prisma.habit.create({
       data: {
         userId,
         title,
-        created_at: addToday,
+        created_at: today,
         weekDays: {
-          create: weekDays.map(weekDay => {
+          create: weekDays.map((weekDay) => {
             return {
               week_day: weekDay,
-              userId
+              userId,
             }
-          })
+          }),
         }
       }
     })
@@ -76,7 +62,7 @@ export async function appRoutes(app: FastifyInstance){
 
     const { date, userId } = getDayParams.parse(req.query)
 
-    const parsedDate = dayjs(date).startOf('day').hour(3)
+    const parsedDate = dayjs(date).startOf('day')
     const weekDay = parsedDate.get('day')
 
     const possibleHabits = await prisma.habit.findMany({
@@ -88,10 +74,12 @@ export async function appRoutes(app: FastifyInstance){
         weekDays: {
           some: {
             week_day: weekDay,
-          }
-        }
-      }
-    })
+          },
+        },
+      },
+    });
+
+    
 
     const day = await prisma.day.findFirst({
       where: {
@@ -124,12 +112,11 @@ export async function appRoutes(app: FastifyInstance){
     const { id, userId } = toggleHabitParams.parse(req.params)
 
     const today = dayjs().startOf('day').toDate()
-    const addToday = dayjs(today).hour(3).toDate()
 
     let day = await prisma.day.findFirst({
       where: {
         userId,
-        date: addToday,
+        date: today,
       }
     })
 
@@ -137,7 +124,7 @@ export async function appRoutes(app: FastifyInstance){
       day = await prisma.day.create({
         data:{
           userId,
-          date: addToday,
+          date: today,
         }
       })
     }
@@ -175,35 +162,32 @@ export async function appRoutes(app: FastifyInstance){
     })
 
     const { userId } = getUser.parse(req.query)
-
     const summary = await prisma.$queryRaw`
-      SELECT
-        D.id,
+      SELECT 
+        D.id, 
         D.date,
         D.userId,
         (
-          SELECT
-            cast(count(*) as char)
-            FROM day_habits DH
-            WHERE DH.day_id = D.id
+          SELECT 
+            cast(count(*) as float)
+          FROM day_habits DH
+          WHERE DH.day_id = D.id
         ) as completed,
         (
           SELECT
-            cast(count(*) as char)
-            
-            FROM habit_week_days HWD
-            JOIN habits H
-              ON H.id = HWD.habit_id
-            WHERE
-              HWD.week_day = DATE_FORMAT(D.date, '%w')
-              AND H.created_at <= D.date
-              AND D.userId = H.userId
+            cast(count(*) as float)
+          FROM habit_week_days HDW
+          JOIN habits H
+            ON H.id = HDW.habit_id
+          WHERE
+            HDW.week_day = cast(strftime('%w', D.date/1000.0, 'unixepoch') as int)
+            AND H.created_at <= D.date
+            AND H.userId = D.userId
         ) as amount
       FROM days D
       WHERE D.userId = ${userId}
     `
-    // console.log(summary)
+
     return summary
   })
 }
-
