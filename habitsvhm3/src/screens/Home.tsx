@@ -32,12 +32,12 @@ export function Home() {
 
   const { userInfo } = useAuth()
 
-  async function getSchedule() {
-    const schedules = await Notifications.getAllScheduledNotificationsAsync()
-    console.log(schedules)
-  }
+  // async function getSchedule() {
+  //   const schedules = await Notifications.getAllScheduledNotificationsAsync()
+  //   console.log(schedules)
+  // }
 
-  getSchedule()
+  // getSchedule()
 
   async function fetchData() {
     try {

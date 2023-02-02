@@ -19,8 +19,8 @@ export function SignIn() {
 
   async function schedulePushNotification() {
     const trigger = new Date()
-    trigger.setHours(20)
-    trigger.setMinutes(trigger.getMinutes() + 2)
+    trigger.setHours(18)
+    trigger.setMinutes(0)
     trigger.setSeconds(0)
 
     await Notifications.scheduleNotificationAsync({
@@ -30,10 +30,10 @@ export function SignIn() {
       },
       trigger,
     });
-    console.log(`A próxima notificação foi agendada para: ${trigger}`);
+    // console.log(`A próxima notificação foi agendada para: ${trigger}`);
   }
 
-  setInterval(schedulePushNotification, 2 * 60 * 1000);
+  setInterval(schedulePushNotification, 24 * 60 * 60 * 1000);
 
   async function handleSignInWithGoogle() {
     try {
