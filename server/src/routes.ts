@@ -1,7 +1,10 @@
 import dayjs from "dayjs"
+import 'dayjs/locale/pt-br'
 import { FastifyInstance } from "fastify"
 import { prisma } from "./lib/prisma"
 import { z } from "zod"
+
+dayjs.locale('pt-br')
 
 export async function appRoutes(app: FastifyInstance) {
   app.post('/user', async(req, res) => {
