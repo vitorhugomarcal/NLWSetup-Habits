@@ -1,6 +1,6 @@
 **Privacy Policy**
 
-vhmarcal built the Habits app as a Free app. This SERVICE is provided by vhmarcal at no cost and is intended for use as is.
+vhmarcal built the Habits app and T.A. Personal as a Free app. This SERVICE is provided by vhmarcal at no cost and is intended for use as is.
 
 This page is used to inform visitors regarding my policies with the collection, use, and disclosure of Personal Information if anyone decided to use my Service.
 
